@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1034095271859",
+    "project_id": "ifitchallenge-b8c27",
+    "storage_bucket": "ifitchallenge-b8c27.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1034095271859:android:626913494aac4c0b70f5c6",
+        "android_client_info": {
+          "package_name": "com.appevolvelabs.ifitchallenge"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1034095271859-jajbrosqakrttj0uq2a38dgmaclna6nm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appevolvelabs.ifitchallenge",
+            "certificate_hash": "7b42bd3d01fdd0105a6a11c9b49727bf483c0481"
+          }
+        },
+        {
+          "client_id": "1034095271859-ulonbqu8u0f215muff47t684ld9lbqv8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu17FNlWG_2uYBW3wz0-NZs2tYtR-dcn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1034095271859-ulonbqu8u0f215muff47t684ld9lbqv8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1034095271859-g71ppn2095e9feev9jub7bdmppc598t2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.appevolvelabs.ifitchallenge"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

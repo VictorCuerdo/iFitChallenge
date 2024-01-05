@@ -1,0 +1,228 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import '../../widgets/auth/auth_divider.dart';
+import '../../widgets/auth/input_fields.dart';
+import '../../widgets/auth/auth_button.dart';
+import '../../widgets/auth/social_media_buttons/apple_auth_button.dart';
+import '../../widgets/auth/social_media_buttons/facebook_auth_button.dart';
+import '../../widgets/auth/social_media_buttons/google_auth_button.dart';
+import '../../widgets/buttons/back_button.dart';
+import '../../widgets/stepBarWidget.dart';
+import '../../pages/Profile_Chooser.dart';
+import '../Home_Page.dart';
+import 'package:ifitchallenge/controllers/navigation_utils.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+class SignUpPage extends StatefulWidget {
+  final ProfileChooserState profileChooserState;
+
+  const SignUpPage({super.key, required this.profileChooserState});
+
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final String _errorMessage = '';
+  final bool _isLoading = false;
+  int currentStep = 6; // Step number for SignUpPage
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double defaultPadding = 16.0;
+    return Scaffold(
+      backgroundColor: const Color(0xFF151515),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    BackxButton(
+                      onBackPressed: () {
+                        if (widget.profileChooserState.currentStep >
+                            ProfileChooserState.minStep) {
+                          widget.profileChooserState.onStepSelected(
+                              widget.profileChooserState.currentStep - 1);
+                        } else {
+                          context.navigateTo('/SignIn');
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20.0),
+
+                Padding(
+                  padding: EdgeInsets.only(left: defaultPadding),
+                  child: const Row(
+                    children: [
+                      Text(
+                        "Create an account",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Open Sans',
+                        ),
+                      ),
+                      SizedBox(width: 8.0),
+                      Icon(
+                        Icons.emoji_events_rounded,
+                        color: Colors.orangeAccent,
+                        size: 32.0,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 8.0),
+
+                Padding(
+                  padding: EdgeInsets.only(left: defaultPadding),
+                  child: const Text(
+                    "Welcome! Please enter your details",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16.0,
+                      fontFamily: 'Open Sans',
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20.0),
+
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(screenWidth * 0.05),
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (_errorMessage.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: defaultPadding),
+                            child: Text(
+                              _errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        GoogleAuthButton(
+                          label: 'Sign up with Google',
+                          onPressed: () {
+                            // Handle Google authentication logic here
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        FacebookAuthButton(
+                          label: 'Sign up with Facebook',
+                          onPressed: () {
+                            // Handle Facebook authentication logic here
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        if (Theme.of(context).platform == TargetPlatform.iOS)
+                          AppleAuthButton(
+                            label: 'Sign up with Apple',
+                            onPressed: () {
+                              // Handle Apple authentication logic here
+                            },
+                          ),
+                        const SizedBox(height: 10),
+                        const AuthDivider(),
+                        const SizedBox(height: 10),
+                        CustomInputField(
+                          label: 'Email',
+                          hintText: 'Enter your email',
+                          isPassword: false,
+                          onChanged: (value) {
+                            // Handle email changes
+                          },
+                          onSubmitted: (value) {
+
+                          },
+                        ),
+                        const SizedBox(height: 15.0),
+                        CustomInputField(
+                          label: 'Password',
+                          hintText: 'Enter your password',
+                          isPassword: true,
+                          onChanged: (value) {
+                            // Handle password changes
+                          },
+                          onSubmitted: (value) {
+
+                          },
+                        ),
+                        const SizedBox(height: 15.0),
+                        GestureDetector(
+                          onTap: () {
+                            print("RESET PASSWORD clicked");
+                          },
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "Forgot your password?",
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.03,
+                                    color: const Color(0xFFE6E6E6),
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Open Sans',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                         const Row(
+                          children: [
+                            Expanded(
+                              child: AuthButton(
+                                label: 'Sign Up',
+                                onPressed: null ,
+                                isLoginButton: false,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: defaultPadding,
+                              bottom: 4.0,
+                            ),
+                            child: StepBarWidget(
+                              stepNumber: currentStep,
+                              totalSteps: ProfileChooserState.maxSteps,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+

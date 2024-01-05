@@ -1,0 +1,127 @@
+name: ifitchallenge
+description: "Mobile Dev Android & IOS #4"
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  math_keyboard: ^0.2.1
+  font_awesome_flutter: ^10.6.0
+  flutter_math_fork: ^0.7.1
+  flutter_colorpicker: ^1.0.3
+  ionicons: ^0.2.2
+  provider: ^6.0.5
+  shared_preferences: ^2.2.2
+  easy_localization: ^3.0.3
+  share_plus: ^7.2.1
+  screenshot: ^2.1.0
+  path_provider: ^2.1.1
+  intl: ^0.18.1
+  auto_size_text: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  lottie: ^2.7.0
+  google_mobile_ads: ^4.0.0
+  firebase_core: ^2.22.0
+  firebase_analytics: ^10.7.0
+  firebase_storage: ^11.5.1
+  firebase_crashlytics: ^3.4.4
+  firebase_remote_config: ^4.3.4
+  material_color_utilities: ^0.5.0
+  connectivity_plus: ^5.0.2
+  firebase_auth: ^4.15.2
+  google_sign_in: ^6.2.0
+  firebase_performance: ^0.9.3+8
+  flutter_svg: ^2.0.9
+  flare_flutter: ^3.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/fonts/
+    - assets/translations/
+    - assets/icon/
+    - assets/animations/
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito/Nunito-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Nunito/Nunito-Bold.ttf
+          weight: 700
+
+    - family: Work Sans
+      fonts:
+
+        - asset: assets/fonts/Work_Sans/WorkSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Work_Sans/WorkSans-Bold.ttf
+          weight: 700
+
+    - family: Lato
+      fonts:
+        - asset: assets/fonts/Lato/Lato-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lato/Lato-BoldItalic.ttf
+          weight: 700
+        - asset: assets/fonts/Lato/Lato-BlackItalic.ttf
+          weight: 900
+
+    - family: PTSans
+      fonts:
+        - asset: assets/fonts/PTSans/PTC55F.ttf
+        - asset: assets/fonts/PTSans/PTC75F.ttf
+          weight: 700
+        - asset: assets/fonts/PTSans/PTN57F.ttf
+        - asset: assets/fonts/PTSans/PTN77F.ttf
+          weight: 700
+        - asset: assets/fonts/PTSans/PTS55F.ttf
+        - asset: assets/fonts/PTSans/PTS56F.ttf
+        - asset: assets/fonts/PTSans/PTS75F.ttf
+          weight: 700
+        - asset: assets/fonts/PTSans/PTS76F.ttf
+          weight: 700
+
+    - family: Open Sans
+      fonts:
+        - asset: assets/fonts/Open_Sans/static/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Open_Sans/static/OpenSans-BoldItalic.ttf
+          weight: 700
+        - asset: assets/fonts/Open_Sans/static/OpenSans-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Open_Sans/static/OpenSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Open_Sans/static/OpenSans-SemiBold.ttf
+          weight: 600
+
+
+    - family: AbhayaLibre
+      fonts:
+        - asset: assets/fonts/abhaya-libre/AbhayaLibre-Regular.ttf
+        - asset: assets/fonts/abhaya-libre/AbhayaLibre-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true # or specify your launcher icon
+  ios: true
+  image_path: "assets/icon/UnitApp.png"
+  adaptive_icon_background: "#FFFFFF"
+  remove_alpha_ios: true
+
+# To add fonts to your application, add a fonts section here, in this "flutter" section.
+# For details regarding fonts from package dependencies, see https://flutter.dev/custom-fonts/#from-packages
