@@ -32,7 +32,7 @@ class IFitChallengeApp extends StatelessWidget {
 
       routes: {
         '/SignIn': (context) => const SignInPage(),
-
+        '/HomePage': (context) => HomePage(),
         '/ChooseOption' : (context)  => const ChooseOption(),
         '/ProfileChooser': (context)  => const ProfileChooser(),
         '/LoadingScreen': (context) => const LoadingScreen(),

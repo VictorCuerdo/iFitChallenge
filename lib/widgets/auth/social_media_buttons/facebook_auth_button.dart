@@ -1,14 +1,18 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class FacebookAuthButton extends StatefulWidget {
   final String label;
-  final Function onPressed;
+  final void Function(UserCredential)? onSuccess;
+  final void Function(Exception)? onError;
 
   const FacebookAuthButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onSuccess,
+    this.onError,
   });
 
   @override
@@ -16,75 +20,80 @@ class FacebookAuthButton extends StatefulWidget {
 }
 
 class _FacebookAuthButtonState extends State<FacebookAuthButton> {
-  bool isPressed = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isProcessing = false;
+
+  Future<void> _handleFacebookSignIn() async {
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final LoginResult loginResult = await FacebookAuth.instance.login();
+      if (loginResult.status == LoginStatus.success) {
+        final AccessToken accessToken = loginResult.accessToken!;
+        final AuthCredential credential = FacebookAuthProvider.credential(accessToken.token);
+
+        UserCredential userCredential = await _auth.signInWithCredential(credential);
+        widget.onSuccess?.call(userCredential);
+      } else if (loginResult.status == LoginStatus.cancelled) {
+        widget.onError?.call(Exception('Facebook sign-in was cancelled'));
+      } else {
+        widget.onError?.call(Exception(loginResult.message));
+      }
+    } catch (exception) {
+      widget.onError?.call(exception as Exception);
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => widget.onPressed(),
-      onTapDown: (_) {
-        setState(() {
-          isPressed = true;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          isPressed = false;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          isPressed = false;
-        });
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20.0),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: const Color(0xFF3C3C3C), // Set your desired border color
-              width: 2.0, // Set your desired border width
+      onTap: _isProcessing ? null : _handleFacebookSignIn,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFF3C3C3C), width: 2.0),
+          borderRadius: BorderRadius.circular(20.0),
+          color: _isProcessing ? Colors.grey[300] : const Color(0xFF1877F2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 4,
+              offset: const Offset(0, 4),
             ),
-            borderRadius: BorderRadius.circular(20.0),
-            color: isPressed ? const Color(0xFF1877F2).withOpacity(0.4) : Colors.transparent,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 4,
-                offset: const Offset(0, 4), // Adjust the shadow offset as needed
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        height: 48,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isProcessing)
+              const CircularProgressIndicator()
+            else
+              Image.asset('assets/icon/facebook_icon.png', height: 32, width: 32),
+            const SizedBox(width: 8),
+            AutoSizeText(
+              _isProcessing ? 'Processing...' : widget.label,
+              style: const TextStyle(
+                fontFamily: 'Open Sans',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          height: 48,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                'assets/icon/facebook_icon.png', // Add your Facebook logo asset path
-                height: 32, // Set your desired height
-                width: 32, // Set your desired width
-              ),
-              const SizedBox(width: 8), // Add space between icon and label
-              AutoSizeText(
-                widget.label,
-                style: const TextStyle(
-                  fontFamily: 'Open Sans',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                minFontSize: 11,
-                maxLines: 1,
-              ),
-            ],
-          ),
+              minFontSize: 11,
+              maxLines: 1,
+            ),
+          ],
         ),
       ),
     );
   }
-
 }
 
 

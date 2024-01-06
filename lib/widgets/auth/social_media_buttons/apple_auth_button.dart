@@ -1,14 +1,18 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AppleAuthButton extends StatefulWidget {
   final String label;
-  final Function onPressed;
+  final void Function(UserCredential)? onSuccess;
+  final void Function(Exception)? onError;
 
   const AppleAuthButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onSuccess,
+    this.onError,
   });
 
   @override
@@ -16,41 +20,51 @@ class AppleAuthButton extends StatefulWidget {
 }
 
 class _AppleAuthButtonState extends State<AppleAuthButton> {
-  bool isPressed = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool _isProcessing = false;
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() {
+      _isProcessing = true;
+    });
+
+    try {
+      final appleCredential = await SignInWithApple.getAppleIDCredential(scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ]);
+
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      UserCredential userCredential = await _auth.signInWithCredential(oauthCredential);
+      widget.onSuccess?.call(userCredential);
+    } catch (exception) {
+      widget.onError?.call(exception as Exception);
+    } finally {
+      setState(() {
+        _isProcessing = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => widget.onPressed(),
-      onTapDown: (_) {
-        setState(() {
-          isPressed = true;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          isPressed = false;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          isPressed = false;
-        });
-      },
+      onTap: _isProcessing ? null : _handleAppleSignIn,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(
-            color: const Color(0xFF3C3C3C), // Set your desired border color
-            width: 2.0, // Set your desired border width
-          ),
+          border: Border.all(color: const Color(0xFF3C3C3C), width: 2.0),
           borderRadius: BorderRadius.circular(20.0),
-          color: isPressed ? Colors.black.withOpacity(0.7) : Colors.transparent,
+          color: _isProcessing ? Colors.grey[300] : Colors.black,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 4,
-              offset: const Offset(0, 4), // Adjust the shadow offset as needed
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -59,14 +73,13 @@ class _AppleAuthButtonState extends State<AppleAuthButton> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/icon/apple_icon.png', // Add your Apple logo asset path
-              height: 32, // Set your desired height
-              width: 32, // Set your desired width
-            ),
-            const SizedBox(width: 8), // Add space between icon and label
+            if (_isProcessing)
+              const CircularProgressIndicator()
+            else
+              Image.asset('assets/icon/apple_icon.png', height: 32, width: 32),
+            const SizedBox(width: 8),
             AutoSizeText(
-              widget.label,
+              _isProcessing ? 'Processing...' : widget.label,
               style: const TextStyle(
                 fontFamily: 'Open Sans',
                 fontSize: 16,
@@ -81,5 +94,5 @@ class _AppleAuthButtonState extends State<AppleAuthButton> {
       ),
     );
   }
-
 }
+

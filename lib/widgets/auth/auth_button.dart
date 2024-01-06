@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 
 class AuthButton extends StatefulWidget {
   final String label;
-  final VoidCallback? onPressed;
+  final Future<void> Function()? onPressed;
   final bool isLoginButton;
   final int? currentStep;
   final Function(int)? onStepSelected;

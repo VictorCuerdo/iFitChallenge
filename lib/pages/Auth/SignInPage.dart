@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ifitchallenge/controllers/navigation_utils.dart';
 import '../../widgets/auth/auth_button.dart';
 import '../../widgets/auth/auth_divider.dart';
@@ -29,22 +28,40 @@ class _SignInPageState extends State<SignInPage> {
   bool _isLoading = false;
   bool obscureText = true;
 
+  Future<void> _signInWithEmail() async {
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      setState(() => _errorMessage = "Email and password cannot be empty");
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+      await _auth.signInWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+      Navigator.of(context).pushReplacementNamed('/HomePage');
+    } on FirebaseAuthException catch (e) {
+      setState(() => _errorMessage = e.message ?? "An unknown error occurred");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double defaultPadding = 16.0;
 
     return Scaffold(
-        backgroundColor: const Color(0xFF151515),
-    body: SafeArea(
-    child: SingleChildScrollView(
-    child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Column(
-    mainAxisAlignment: MainAxisAlignment.start,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-    const SizedBox(height: 15),
+      backgroundColor: const Color(0xFF151515),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const SizedBox(height: 15),
     Row(
     children: [
     BackxButton(onBackPressed: () {
@@ -113,51 +130,68 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                       GoogleAuthButton(
                         label: 'Log in with Google',
-                        onPressed: () {
-                          // Handle Google authentication logic here
+                        onSuccess: (UserCredential userCredential) {
+                          // Handle successful authentication
+                          Navigator.of(context).pushReplacementNamed('/HomePage');
+                        },
+                        onError: (Exception error) {
+                          _showErrorSnackBar('Google Sign-In Error: ${error.toString()}');
                         },
                       ),
+
                       const SizedBox(height: 10),
                       FacebookAuthButton(
                         label: 'Log in with Facebook',
-                        onPressed: () {
-                          // Handle Facebook authentication logic here
+                        onSuccess: (UserCredential userCredential) {
+                          // Handle successful authentication
+                          Navigator.of(context).pushReplacementNamed('/HomePage');
+                        },
+                        onError: (Exception error) {
+                          _showErrorSnackBar('Google Sign-In Error: ${error.toString()}');
                         },
                       ),
+
                       const SizedBox(height: 10),
                       if (Theme.of(context).platform == TargetPlatform.iOS)
                         AppleAuthButton(
                           label: 'Log in with Apple',
-                          onPressed: () {
-                            // Handle Apple authentication logic here
+                          onSuccess: (UserCredential userCredential) {
+                            // Handle successful authentication
+                            Navigator.of(context).pushReplacementNamed('/HomePage');
+                          },
+                          onError: (Exception error) {
+                            _showErrorSnackBar('Google Sign-In Error: ${error.toString()}');
                           },
                         ),
+
                       const SizedBox(height: 10),
                       const AuthDivider(),
                       const SizedBox(height: 10),
+                      // Email and Password Fields
                       CustomInputField(
                         label: 'Email',
                         hintText: 'Enter your email',
                         isPassword: false,
-                        onChanged: (value) {
-                          // Handle email changes
-                        },
-                        onSubmitted: (value) {
-                          // Handle email submission
-                        },
+                        onChanged: (value) => emailController.text = value,
+                        onSubmitted: (value) => emailController.text = value,
                       ),
-                      const SizedBox(height: 15.0),
                       CustomInputField(
                         label: 'Password',
                         hintText: 'Enter your password',
                         isPassword: true,
-                        onChanged: (value) {
-                          // Handle password changes
-                        },
-                        onSubmitted: (value) {
-                          // Handle password submission
-                        },
+                        onChanged: (value) => passwordController.text = value,
+                        onSubmitted: (value) => passwordController.text = value,
                       ),
+// Error Message
+                      if (_errorMessage.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: defaultPadding),
+                          child: Text(
+                            _errorMessage,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
                       const SizedBox(height: 15.0),
                       GestureDetector(
                         onTap: () {
@@ -181,12 +215,12 @@ class _SignInPageState extends State<SignInPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Row(
+                      Row(
                         children: [
                           Expanded(
                             child: AuthButton(
                               label: 'Log In',
-                              onPressed: null,
+                              onPressed: _isLoading ? null : _signInWithEmail,
                               isLoginButton: true,
                             ),
                           ),
@@ -262,7 +296,13 @@ class _SignInPageState extends State<SignInPage> {
     ),
     );
   }
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 }
+
 
 
 

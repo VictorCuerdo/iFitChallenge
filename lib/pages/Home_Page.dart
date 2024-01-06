@@ -1,16 +1,13 @@
-// home_page.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
-  final User user;
+  final User? user;
 
-  HomePage({Key? key, required this.user}) : super(key: key);
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  HomePage({Key? key, this.user}) : super(key: key);
 
   Future<void> _signOut(BuildContext context) async {
-    await _auth.signOut();
+    await FirebaseAuth.instance.signOut();
     // After signing out, redirect the user to the login screen
     Navigator.pushReplacementNamed(context, '/chooseOption');
   }
@@ -34,7 +31,7 @@ class HomePage extends StatelessWidget {
             const Text('Welcome to the Daily Fitness Challenge!',
                 style: TextStyle(fontSize: 20)),
             const SizedBox(height: 20),
-            Text('Hello, ${user.email}',
+            Text('Hello, ${user?.email ?? 'Guest'}',
                 style:
                 const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),

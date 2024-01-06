@@ -12,7 +12,6 @@ import '../../widgets/stepBarWidget.dart';
 import '../../pages/Profile_Chooser.dart';
 import '../Home_Page.dart';
 import 'package:ifitchallenge/controllers/navigation_utils.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class SignUpPage extends StatefulWidget {
   final ProfileChooserState profileChooserState;
@@ -24,14 +23,35 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final String _errorMessage = '';
-  final bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _email = '';
+  String _password = '';
+  String _errorMessage = '';
+  bool _isLoading = false;
   int currentStep = 6; // Step number for SignUpPage
+
+  Future<void> _signUpWithEmail() async {
+    if (_email.isEmpty || _password.isEmpty) {
+      setState(() => _errorMessage = "Email and password cannot be empty");
+      return;
+    }
+
+    try {
+      setState(() => _isLoading = true);
+      await _auth.createUserWithEmailAndPassword(email: _email, password: _password);
+      Navigator.of(context).pushReplacementNamed('/HomePage');
+    } on FirebaseAuthException catch (e) {
+      setState(() => _errorMessage = e.message ?? "An unknown error occurred");
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double defaultPadding = 16.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFF151515),
       body: SafeArea(
@@ -118,25 +138,44 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         GoogleAuthButton(
                           label: 'Sign up with Google',
-                          onPressed: () {
-                            // Handle Google authentication logic here
+                          onSuccess: (UserCredential userCredential) {
+                            Navigator.of(context).pushReplacementNamed('/HomePage');
+                          },
+                          onError: (Exception error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Google Sign-Up Error: ${error.toString()}')),
+                            );
                           },
                         ),
                         const SizedBox(height: 10),
                         FacebookAuthButton(
                           label: 'Sign up with Facebook',
-                          onPressed: () {
-                            // Handle Facebook authentication logic here
+                          onSuccess: (UserCredential userCredential) {
+                            Navigator.of(context).pushReplacementNamed('/HomePage');
+                          },
+                          onError: (Exception error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Facebook Sign-Up Error: ${error.toString()}')),
+                            );
                           },
                         ),
                         const SizedBox(height: 10),
                         if (Theme.of(context).platform == TargetPlatform.iOS)
                           AppleAuthButton(
                             label: 'Sign up with Apple',
-                            onPressed: () {
-                              // Handle Apple authentication logic here
+                            onSuccess: (UserCredential userCredential) {
+                              // Navigate to the HomePage on successful sign-up
+                              Navigator.of(context).pushReplacementNamed('/HomePage');
+                            },
+                            onError: (Exception error) {
+                              // Display a snackbar with the error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Apple Sign-Up Error: ${error.toString()}')),
+                              );
                             },
                           ),
+                        const SizedBox(height: 10),
+
                         const SizedBox(height: 10),
                         const AuthDivider(),
                         const SizedBox(height: 10),
@@ -144,24 +183,16 @@ class _SignUpPageState extends State<SignUpPage> {
                           label: 'Email',
                           hintText: 'Enter your email',
                           isPassword: false,
-                          onChanged: (value) {
-                            // Handle email changes
-                          },
-                          onSubmitted: (value) {
-
-                          },
+                          onChanged: (value) => setState(() => _email = value),
+                          onSubmitted: (value) => _email = value,
                         ),
                         const SizedBox(height: 15.0),
                         CustomInputField(
                           label: 'Password',
                           hintText: 'Enter your password',
                           isPassword: true,
-                          onChanged: (value) {
-                            // Handle password changes
-                          },
-                          onSubmitted: (value) {
-
-                          },
+                          onChanged: (value) => setState(() => _password = value),
+                          onSubmitted: (value) => _password = value,
                         ),
                         const SizedBox(height: 15.0),
                         GestureDetector(
@@ -186,12 +217,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                         const Row(
+                          Row(
                           children: [
                             Expanded(
                               child: AuthButton(
                                 label: 'Sign Up',
-                                onPressed: null ,
+                                onPressed: _isLoading ? null : _signUpWithEmail,
                                 isLoginButton: false,
                               ),
                             ),
