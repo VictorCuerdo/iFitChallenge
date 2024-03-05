@@ -1,6 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../blocs/user_answer/user_answer_bloc.dart';
+import '../../blocs/user_answer/user_answer_event.dart';
+import '/../blocs/auth/auth_bloc.dart';
+import '/../blocs/auth/auth_event.dart';
 
 class AuthButton extends StatefulWidget {
   final String label;
@@ -12,7 +17,7 @@ class AuthButton extends StatefulWidget {
   const AuthButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.isLoginButton = true,
     this.currentStep,
     this.onStepSelected,
@@ -29,42 +34,27 @@ class _AuthButtonState extends State<AuthButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          isPressed = true;
-        });
-      },
+      onTapDown: (_) => setState(() => isPressed = true),
       onTapUp: (_) async {
-        setState(() {
-          isPressed = false;
-        });
+        setState(() => isPressed = false);
 
-        // Show loading animation
-        setState(() {
-          isLoading = true;
-        });
+        if (!isLoading && widget.onPressed != null) {
+          setState(() => isLoading = true);
+          await widget.onPressed!();
+          setState(() => isLoading = false);
 
-        // Simulate a delay (you can replace this with your authentication logic)
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Hide loading animation
-        setState(() {
-          isLoading = false;
-        });
-
-        widget.onPressed?.call(); // Call onPressed if it's not null
-
-        if (!widget.isLoginButton &&
-            widget.onStepSelected != null &&
-            widget.currentStep != null) {
-          widget.onStepSelected!(widget.currentStep! + 1); // Move to the next step
+          if (!widget.isLoginButton) {
+            // Logic for non-login button, such as saving answers
+            if (widget.currentStep != null) {
+              // Trigger an event to save the answers
+              // Replace with your actual logic to collect answers
+              BlocProvider.of<UserAnswerBloc>(context).add(SaveAnswers({/* Your answers map here */}));
+              widget.onStepSelected?.call(widget.currentStep! + 1); // Move to the next step
+            }
+          }
         }
       },
-      onTapCancel: () {
-        setState(() {
-          isPressed = false;
-        });
-      },
+      onTapCancel: () => setState(() => isPressed = false),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
@@ -87,7 +77,11 @@ class _AuthButtonState extends State<AuthButton> {
           ),
         ),
         child: ElevatedButton(
-          onPressed: isLoading ? null : widget.onPressed,
+          onPressed: isLoading ? null : () {
+            if (widget.onPressed != null) {
+              widget.onPressed!();
+            }
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: isPressed ? Colors.green.withOpacity(0.5) : Colors.transparent,
             minimumSize: const Size(200, 48),
@@ -100,28 +94,25 @@ class _AuthButtonState extends State<AuthButton> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              isLoading
-                  ? Lottie.asset(
-                'assets/animations/successful.json',
-                width: 30,
-                height: 30,
-                fit: BoxFit.cover,
-              )
-                  : const SizedBox(), // Show the animation only when loading
-              const SizedBox(width: 8),
-              isLoading
-                  ? const SizedBox() // Hide the label when loading
-                  : AutoSizeText(
-                widget.label,
-                style: const TextStyle(
-                  fontFamily: 'Open Sans',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              if (isLoading)
+                const SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: CircularProgressIndicator(),
                 ),
-                minFontSize: 11,
-                maxLines: 1,
-              ),
+              const SizedBox(width: 8),
+              if (!isLoading)
+                AutoSizeText(
+                  widget.label,
+                  style: const TextStyle(
+                    fontFamily: 'Open Sans',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  minFontSize: 11,
+                  maxLines: 1,
+                ),
             ],
           ),
         ),
@@ -129,6 +120,8 @@ class _AuthButtonState extends State<AuthButton> {
     );
   }
 }
+
+
 
 
 

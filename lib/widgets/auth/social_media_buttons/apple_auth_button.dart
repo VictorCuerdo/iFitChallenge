@@ -2,43 +2,39 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import '/../blocs/auth/auth_bloc.dart';
+import '/../blocs/auth/auth_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppleAuthButton extends StatefulWidget {
   final String label;
   final void Function(UserCredential)? onSuccess;
   final void Function(Exception)? onError;
-
   const AppleAuthButton({
     super.key,
     required this.label,
     this.onSuccess,
     this.onError,
   });
-
   @override
   _AppleAuthButtonState createState() => _AppleAuthButtonState();
 }
-
 class _AppleAuthButtonState extends State<AppleAuthButton> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isProcessing = false;
-
   Future<void> _handleAppleSignIn() async {
     setState(() {
       _isProcessing = true;
     });
-
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(scopes: [
         AppleIDAuthorizationScopes.email,
         AppleIDAuthorizationScopes.fullName,
       ]);
-
       final oauthCredential = OAuthProvider("apple.com").credential(
         idToken: appleCredential.identityToken,
         accessToken: appleCredential.authorizationCode,
       );
-
       UserCredential userCredential = await _auth.signInWithCredential(oauthCredential);
       widget.onSuccess?.call(userCredential);
     } catch (exception) {
@@ -49,11 +45,10 @@ class _AppleAuthButtonState extends State<AppleAuthButton> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: _isProcessing ? null : _handleAppleSignIn,
+      onTap: () => BlocProvider.of<AuthBloc>(context).add(AppleSignInRequested()),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFF3C3C3C), width: 2.0),
@@ -95,4 +90,3 @@ class _AppleAuthButtonState extends State<AppleAuthButton> {
     );
   }
 }
-

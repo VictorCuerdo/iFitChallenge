@@ -1,12 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
+import '../../blocs/user_answer/profile_chooser_bloc.dart';
+import '../../pages/Profile_Chooser.dart';
+
 class MyButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
-
   const MyButton({super.key, required this.label, required this.onPressed});
-
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -44,19 +45,23 @@ class MyButton extends StatelessWidget {
     );
   }
 }
-
 class ButtonTexts {
   static const String button1Label = "ALMOST NEVER";
   static const String button2Label = "SOMETIMES";
   static const String button3Label = "2-3 TIMES A WEEK";
   static const String button4Label = "MORE THAN 4 TIMES A WEEK";
 }
-
 class ButtonWidgetStep3 extends StatelessWidget {
   final int currentStep;
-  final Function(int) onStepSelected;
+  final Function(int, String) onStepSelected; // Updated function type
+  final ProfileChooserState state; // Add this line
 
-  const ButtonWidgetStep3({super.key, required this.currentStep, required this.onStepSelected});
+  const ButtonWidgetStep3({
+    super.key,
+    required this.currentStep,
+    required this.onStepSelected,
+    required this.state, // Add this line
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,28 +71,28 @@ class ButtonWidgetStep3 extends StatelessWidget {
         MyButton(
           label: ButtonTexts.button1Label,
           onPressed: () {
-            onStepSelected(currentStep + 1);
+            state.onStepSelected(currentStep + 1, ButtonTexts.button1Label);
           },
         ),
         SizedBox(height: MediaQuery.of(context).size.width * 0.05),
         MyButton(
           label: ButtonTexts.button2Label,
           onPressed: () {
-            onStepSelected(currentStep + 1);
+            state.onStepSelected(currentStep + 1, ButtonTexts.button2Label);
           },
         ),
         SizedBox(height: MediaQuery.of(context).size.width * 0.05),
         MyButton(
           label: ButtonTexts.button3Label,
           onPressed: () {
-            onStepSelected(currentStep + 1);
+            state.onStepSelected(currentStep + 1, ButtonTexts.button3Label);
           },
         ),
         SizedBox(height: MediaQuery.of(context).size.width * 0.05),
         MyButton(
           label: ButtonTexts.button4Label,
           onPressed: () {
-            onStepSelected(currentStep + 1);
+            state.onStepSelected(currentStep + 1, ButtonTexts.button4Label);
           },
         ),
       ],

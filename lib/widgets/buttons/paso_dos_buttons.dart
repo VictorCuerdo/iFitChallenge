@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class GenderSelectionWidget extends StatefulWidget {
   final int currentStep;
-  final Function(int) onStepSelected;
+  final Function(int, String) onStepSelected; // Updated function type
 
   const GenderSelectionWidget({
     super.key,
@@ -23,7 +23,6 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -34,6 +33,7 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
             isSelected: isWomenSelected,
             onPressed: () {
               _updateSelection(true, false);
+              widget.onStepSelected(widget.currentStep + 1, 'Women'); // Updated
             },
             size: screenWidth * 0.4,
           ),
@@ -43,6 +43,7 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
             isSelected: isMenSelected,
             onPressed: () {
               _updateSelection(false, true);
+              widget.onStepSelected(widget.currentStep + 1, 'Men'); // Updated
             },
             size: screenWidth * 0.4,
           ),
@@ -52,20 +53,10 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
   }
 
   void _updateSelection(bool womenSelected, bool menSelected) {
-    if (!isNextButtonPressed) {
-      setState(() {
-        isWomenSelected = womenSelected;
-        isMenSelected = menSelected;
-      });
-
-      // Save the user's selection in your state or wherever it's needed
-      // Example: You might have a function in your provider to save the selection
-      if (womenSelected) {
-        // Save women selection logic
-      } else if (menSelected) {
-        // Save men selection logic
-      }
-    }
+    setState(() {
+      isWomenSelected = womenSelected;
+      isMenSelected = menSelected;
+    });
   }
 
   Widget _buildGenderButton({
@@ -96,9 +87,7 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
                 colors: [
                   const Color(0xFFA54664).withOpacity(0.8),
                   const Color(0xFF005C97).withOpacity(0.8),
-
-                 // const Color(0xFFFC5C7D).withOpacity(0.5),
-
+                  // const Color(0xFFFC5C7D).withOpacity(0.5),
                 ],
                 center: Alignment.center,
                 radius: 0.8,
@@ -134,6 +123,4 @@ class _GenderSelectionWidgetState extends State<GenderSelectionWidget> {
       ),
     );
   }
-
 }
-

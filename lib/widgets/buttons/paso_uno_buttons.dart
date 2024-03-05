@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+import '../../blocs/user_answer/profile_chooser_bloc.dart';
+import '../../pages/Profile_Chooser.dart';
+
 class MyButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
-
   const MyButton({super.key, required this.label, required this.icon, required this.onPressed});
-
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -51,19 +52,22 @@ class MyButton extends StatelessWidget {
     );
   }
 }
-
 class ButtonTexts {
   static const String button1Label = "LOOSE WEIGHT";
   static const String button2Label = "TONE YOURSELF";
   static const String button3Label = "BUILD MUSCLE";
 }
-
 class ButtonWidgetStep1 extends StatelessWidget {
   final int currentStep;
-  final Function(int) onStepSelected;
+  final Function(int, String) onStepSelected; // Updated function type
+  final ProfileChooserState state; // Add this line
 
-  const ButtonWidgetStep1({super.key, required this.currentStep, required this.onStepSelected});
-
+  const ButtonWidgetStep1({
+    super.key,
+    required this.currentStep,
+    required this.onStepSelected,
+    required this.state, // Add this line
+  });
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -73,7 +77,7 @@ class ButtonWidgetStep1 extends StatelessWidget {
           label: ButtonTexts.button1Label,
           icon: Icons.trending_down,
           onPressed: () {
-            onStepSelected(currentStep + 1); // Move to the next step
+            state.onStepSelected(currentStep + 1, ButtonTexts.button1Label);
           },
         ),
         SizedBox(height: MediaQuery.of(context).size.width * 0.05),
@@ -81,7 +85,7 @@ class ButtonWidgetStep1 extends StatelessWidget {
           label: ButtonTexts.button2Label,
           icon: Icons.sports_gymnastics,
           onPressed: () {
-            onStepSelected(currentStep + 1); // Move to the next step
+            state.onStepSelected(currentStep + 1, ButtonTexts.button2Label);
           },
         ),
         SizedBox(height: MediaQuery.of(context).size.width * 0.05),
@@ -89,7 +93,7 @@ class ButtonWidgetStep1 extends StatelessWidget {
           label: ButtonTexts.button3Label,
           icon: Icons.fitness_center,
           onPressed: () {
-            onStepSelected(currentStep + 1); // Move to the next step
+            state.onStepSelected(currentStep + 1, ButtonTexts.button3Label);
           },
         ),
       ],

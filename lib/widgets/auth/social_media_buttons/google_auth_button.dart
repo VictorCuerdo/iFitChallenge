@@ -2,34 +2,32 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '/../blocs/auth/auth_bloc.dart';
+import '/../blocs/auth/auth_event.dart';
 
 class GoogleAuthButton extends StatefulWidget {
   final String label;
   final void Function(UserCredential)? onSuccess;
   final void Function(Exception)? onError;
-
   const GoogleAuthButton({
     super.key,
     required this.label,
     this.onSuccess,
     this.onError,
   });
-
   @override
   _GoogleAuthButtonState createState() => _GoogleAuthButtonState();
 }
-
 class _GoogleAuthButtonState extends State<GoogleAuthButton> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isProcessing = false;
-
   Future<void> _handleGoogleSignIn() async {
     try {
       setState(() {
         _isProcessing = true;
       });
-
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         if (widget.onError != null) {
@@ -37,13 +35,11 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
         }
         return;
       }
-
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-
       UserCredential userCredential = await _auth.signInWithCredential(credential);
       widget.onSuccess?.call(userCredential);
     } catch (exception) {
@@ -54,11 +50,10 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: _isProcessing ? null : _handleGoogleSignIn,
+      onTap: () => BlocProvider.of<AuthBloc>(context).add(GoogleSignInRequested()),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFF3C3C3C), width: 2.0),
@@ -100,8 +95,6 @@ class _GoogleAuthButtonState extends State<GoogleAuthButton> {
     );
   }
 }
-
-
 
 
 

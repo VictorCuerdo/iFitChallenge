@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../widgets/auth/auth_divider.dart';
 import '../../widgets/auth/input_fields.dart';
 import '../../widgets/auth/auth_button.dart';
@@ -10,7 +11,9 @@ import '../../widgets/auth/social_media_buttons/google_auth_button.dart';
 import '../../widgets/buttons/back_button.dart';
 import '../../widgets/stepBarWidget.dart';
 import '../../pages/Profile_Chooser.dart';
-import '../Home_Page.dart';
+import '../../blocs/auth/auth_bloc.dart';
+import '../../blocs/auth/auth_event.dart';
+import '../../pages/Home_Page.dart';
 import 'package:ifitchallenge/controllers/navigation_utils.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -23,7 +26,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String _email = '';
   String _password = '';
   String _errorMessage = '';
@@ -35,13 +37,12 @@ class _SignUpPageState extends State<SignUpPage> {
       setState(() => _errorMessage = "Email and password cannot be empty");
       return;
     }
-
     try {
       setState(() => _isLoading = true);
-      await _auth.createUserWithEmailAndPassword(email: _email, password: _password);
-      Navigator.of(context).pushReplacementNamed('/HomePage');
-    } on FirebaseAuthException catch (e) {
-      setState(() => _errorMessage = e.message ?? "An unknown error occurred");
+      // Dispatch event to AuthBloc
+      BlocProvider.of<AuthBloc>(context).add(EmailSignInRequested(email: _email, password: _password));
+    } catch (e) {
+      setState(() => _errorMessage = e.toString());
     } finally {
       setState(() => _isLoading = false);
     }
@@ -67,19 +68,17 @@ class _SignUpPageState extends State<SignUpPage> {
                   children: [
                     BackxButton(
                       onBackPressed: () {
-                        if (widget.profileChooserState.currentStep >
-                            ProfileChooserState.minStep) {
+                        if (widget.profileChooserState.currentStep > ProfileChooserState.minStep) {
                           widget.profileChooserState.onStepSelected(
-                              widget.profileChooserState.currentStep - 1);
+                              widget.profileChooserState.currentStep - 1, ''); // Added empty string as a placeholder
                         } else {
-                          context.navigateTo('/SignIn');
+                          Navigator.of(context).pop(); // Or navigate to a specific route if needed
                         }
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 20.0),
-
                 Padding(
                   padding: EdgeInsets.only(left: defaultPadding),
                   child: const Row(
@@ -102,9 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 8.0),
-
                 Padding(
                   padding: EdgeInsets.only(left: defaultPadding),
                   child: const Text(
@@ -116,9 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20.0),
-
                 Center(
                   child: Padding(
                     padding: EdgeInsets.all(screenWidth * 0.05),
@@ -175,7 +170,6 @@ class _SignUpPageState extends State<SignUpPage> {
                             },
                           ),
                         const SizedBox(height: 10),
-
                         const SizedBox(height: 10),
                         const AuthDivider(),
                         const SizedBox(height: 10),
@@ -217,7 +211,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                          Row(
+                        Row(
                           children: [
                             Expanded(
                               child: AuthButton(
@@ -254,6 +248,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
+
 
 
 

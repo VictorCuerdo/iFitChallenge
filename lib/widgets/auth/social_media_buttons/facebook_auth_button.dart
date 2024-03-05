@@ -1,24 +1,24 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import '/../blocs/auth/auth_bloc.dart';
+import '/../blocs/auth/auth_event.dart';
 
 class FacebookAuthButton extends StatefulWidget {
   final String label;
   final void Function(UserCredential)? onSuccess;
   final void Function(Exception)? onError;
-
   const FacebookAuthButton({
     super.key,
     required this.label,
     this.onSuccess,
     this.onError,
   });
-
   @override
   _FacebookAuthButtonState createState() => _FacebookAuthButtonState();
 }
-
 class _FacebookAuthButtonState extends State<FacebookAuthButton> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isProcessing = false;
@@ -33,7 +33,6 @@ class _FacebookAuthButtonState extends State<FacebookAuthButton> {
       if (loginResult.status == LoginStatus.success) {
         final AccessToken accessToken = loginResult.accessToken!;
         final AuthCredential credential = FacebookAuthProvider.credential(accessToken.token);
-
         UserCredential userCredential = await _auth.signInWithCredential(credential);
         widget.onSuccess?.call(userCredential);
       } else if (loginResult.status == LoginStatus.cancelled) {
@@ -49,11 +48,10 @@ class _FacebookAuthButtonState extends State<FacebookAuthButton> {
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: _isProcessing ? null : _handleFacebookSignIn,
+      onTap: () => BlocProvider.of<AuthBloc>(context).add(FacebookSignInRequested()),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: const Color(0xFF3C3C3C), width: 2.0),
@@ -95,7 +93,6 @@ class _FacebookAuthButtonState extends State<FacebookAuthButton> {
     );
   }
 }
-
 
 
 
